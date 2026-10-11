@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Management Website</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Node.js File Management Website</h1>
+      <p class="subtitle">Create, read, update, append, and delete files from your browser.</p>
+
+      <section class="card">
+        <div class="field">
+          <label for="fileName">File name</label>
+          <input id="fileName" type="text" placeholder="example.txt" />
+        </div>
+
+        <div class="field">
+          <label for="content">Content</label>
+          <textarea id="content" rows="8" placeholder="Write file content here..."></textarea>
+        </div>
+
+        <div class="actions">
+          <button id="createBtn">Create</button>
+          <button id="readBtn">Read</button>
+          <button id="updateBtn">Write / Update</button>
+          <button id="appendBtn">Append</button>
+          <button id="deleteBtn" class="danger">Delete</button>
+          <button id="listBtn" class="secondary">List Files</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Result</h2>
+        <pre id="result">(No result yet)</pre>
+      </section>
+
+      <section class="card">
+        <h2>Files</h2>
+        <ul id="fileList"></ul>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
