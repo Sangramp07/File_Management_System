@@ -1,47 +1,493 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>File Management Website</title>
+    <title>FileCore — Modern File Management System</title>
+    <!-- Modern Typography: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="container">
-      <h1>Node.js File Management Website</h1>
-      <p class="subtitle">Create, read, update, append, and delete files from your browser.</p>
+    <!-- Top Navigation Header -->
+    <header class="navbar">
+      <div class="nav-brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">FileCore <span class="badge-project">College Project</span></div>
+          <div class="brand-subtitle">Full-Stack Cloud File Management System</div>
+        </div>
+      </div>
 
-      <section class="card">
-        <div class="field">
-          <label for="fileName">File name</label>
-          <input id="fileName" type="text" placeholder="example.txt" />
+      <div class="nav-controls">
+        <div class="status-pill" id="serverStatusPill" title="Server Status">
+          <span class="status-dot online"></span>
+          <span id="serverStatusText">API Online</span>
         </div>
 
-        <div class="field">
-          <label for="content">Content</label>
-          <textarea id="content" rows="8" placeholder="Write file content here..."></textarea>
+        <button class="icon-btn" id="systemInfoBtn" title="System Diagnostics & Stats">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+          <span class="btn-label">Diagnostics</span>
+        </button>
+
+        <button class="icon-btn" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+          <span id="themeIcon">🌙</span>
+        </button>
+
+        <button class="icon-btn" id="globalRefreshBtn" title="Refresh files and stats">
+          <svg class="spin-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Application Wrapper -->
+    <div class="app-layout">
+      <!-- KPI Stats Banner -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon-wrapper purple">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <div class="stat-meta">
+            <span class="stat-label">Total Files</span>
+            <span class="stat-value" id="statTotalFiles">0</span>
+          </div>
         </div>
 
-        <div class="actions">
-          <button id="createBtn">Create</button>
-          <button id="readBtn">Read</button>
-          <button id="updateBtn">Write / Update</button>
-          <button id="appendBtn">Append</button>
-          <button id="deleteBtn" class="danger">Delete</button>
-          <button id="listBtn" class="secondary">List Files</button>
+        <div class="stat-card">
+          <div class="stat-icon-wrapper blue">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+            </svg>
+          </div>
+          <div class="stat-meta">
+            <span class="stat-label">Storage Used</span>
+            <span class="stat-value" id="statTotalSize">0 B</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="stat-meta">
+            <span class="stat-label">Server Uptime</span>
+            <span class="stat-value" id="statUptime">Live</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper amber">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+          <div class="stat-meta">
+            <span class="stat-label">Backend Engine</span>
+            <span class="stat-value" id="statNodeVersion">Node.js Express</span>
+          </div>
         </div>
       </section>
 
-      <section class="card">
-        <h2>Result</h2>
-        <pre id="result">(No result yet)</pre>
-      </section>
+      <!-- Main Workspace (Explorer + Editor) -->
+      <main class="workspace-grid">
+        <!-- Left: File Explorer Panel -->
+        <aside class="explorer-panel card">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2>File Explorer</h2>
+              <span class="count-badge" id="fileCountBadge">0</span>
+            </div>
+            <div class="panel-actions">
+              <button class="btn btn-primary btn-sm" id="openNewFileModalBtn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                New
+              </button>
+              <label class="btn btn-secondary btn-sm upload-label" title="Upload a file from your computer">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                Upload
+                <input type="file" id="fileUploadInput" hidden />
+              </label>
+            </div>
+          </div>
 
-      <section class="card">
-        <h2>Files</h2>
-        <ul id="fileList"></ul>
+          <!-- Search & Filter Controls -->
+          <div class="search-box">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="searchInput" placeholder="Search files by name..." />
+            <button class="clear-search-btn" id="clearSearchBtn" title="Clear Search">&times;</button>
+          </div>
+
+          <!-- Filter Category Pills -->
+          <div class="filter-pills" id="filterPills">
+            <button class="filter-pill active" data-filter="all">All</button>
+            <button class="filter-pill" data-filter="code">Code</button>
+            <button class="filter-pill" data-filter="doc">Docs</button>
+            <button class="filter-pill" data-filter="data">Data</button>
+          </div>
+
+          <!-- View Mode Toggle -->
+          <div class="view-mode-bar">
+            <span class="text-muted" id="fileListHint">Click file to open in editor</span>
+            <div class="view-toggle-btns">
+              <button class="view-btn active" id="viewListBtn" title="List View">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="8" y1="6" x2="21" y2="6"></line>
+                  <line x1="8" y1="12" x2="21" y2="12"></line>
+                  <line x1="8" y1="18" x2="21" y2="18"></line>
+                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+              </button>
+              <button class="view-btn" id="viewGridBtn" title="Grid View">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- File List Container -->
+          <div class="file-list-scroll">
+            <ul class="file-list" id="fileList">
+              <li class="loading-state">
+                <div class="spinner"></div>
+                <span>Loading storage files...</span>
+              </li>
+            </ul>
+          </div>
+        </aside>
+
+        <!-- Right: Code & Document Workspace Editor -->
+        <section class="editor-panel card">
+          <!-- Editor Header -->
+          <div class="editor-header">
+            <div class="active-file-meta">
+              <span class="file-icon-badge" id="activeFileExtBadge">TXT</span>
+              <div class="active-file-title-wrap">
+                <input
+                  type="text"
+                  id="fileName"
+                  class="file-title-input"
+                  placeholder="untitled.txt"
+                  spellcheck="false"
+                />
+                <span class="status-indicator-saved" id="saveIndicator">Saved</span>
+              </div>
+            </div>
+
+            <!-- Editor Action Buttons -->
+            <div class="editor-actions">
+              <button class="btn btn-primary" id="saveFileBtn" title="Save file (Ctrl + S)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                <span>Save</span>
+              </button>
+
+              <button class="btn btn-secondary" id="appendBtn" title="Append content to file">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Append</span>
+              </button>
+
+              <button class="btn btn-secondary" id="downloadBtn" title="Download to computer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Download</span>
+              </button>
+
+              <button class="btn btn-secondary" id="renamePromptBtn" title="Rename file">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                </svg>
+                <span>Rename</span>
+              </button>
+
+              <button class="btn btn-secondary" id="copyContentBtn" title="Copy content to clipboard">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy</span>
+              </button>
+
+              <button class="btn btn-danger" id="deleteBtn" title="Delete file from storage">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span>Delete</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Code Editor Body with Line Counter -->
+          <div class="editor-body">
+            <div class="line-gutter" id="lineGutter">1</div>
+            <textarea
+              id="content"
+              class="code-textarea"
+              placeholder="Start typing your file content here... (Tab key supported for indent)"
+              spellcheck="false"
+            ></textarea>
+          </div>
+
+          <!-- Editor Footer Status Bar -->
+          <div class="editor-footer">
+            <div class="doc-metrics">
+              <span class="metric-item"><strong id="metricLines">1</strong> lines</span>
+              <span class="metric-sep">•</span>
+              <span class="metric-item"><strong id="metricWords">0</strong> words</span>
+              <span class="metric-sep">•</span>
+              <span class="metric-item"><strong id="metricChars">0</strong> chars</span>
+              <span class="metric-sep">•</span>
+              <span class="metric-item"><strong id="metricSize">0 B</strong></span>
+            </div>
+            <div class="editor-shortcuts">
+              <span class="shortcut-tip"><kbd>Ctrl</kbd> + <kbd>S</kbd> to save</span>
+              <button class="clear-editor-link" id="clearEditorBtn">Clear Editor</button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Bottom Drawer: REST API & Activity Console (College Project Feature) -->
+      <section class="console-drawer card">
+        <div class="console-header">
+          <div class="console-tabs">
+            <button class="console-tab active" data-tab="activity">
+              <span class="tab-dot"></span> Live Activity Feed
+            </button>
+            <button class="console-tab" data-tab="rest">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              REST API Inspector
+            </button>
+          </div>
+          <div class="console-tools">
+            <button class="icon-link-btn" id="clearLogsBtn" title="Clear Feed">Clear</button>
+            <button class="icon-link-btn" id="collapseConsoleBtn" title="Collapse / Expand Console">Hide</button>
+          </div>
+        </div>
+
+        <div class="console-content" id="consoleContentArea">
+          <!-- Tab 1: Activity Feed -->
+          <div class="tab-pane active" id="paneActivity">
+            <div class="activity-feed" id="activityFeed">
+              <div class="feed-item init">
+                <span class="feed-time">System</span>
+                <span class="feed-msg">FileCore initialized. Ready for operations.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: REST Inspector -->
+          <div class="tab-pane" id="paneRest">
+            <div class="rest-inspector-grid">
+              <div class="rest-meta-bar">
+                <span class="rest-badge get" id="restMethod">GET</span>
+                <span class="rest-endpoint" id="restEndpoint">/api/files/list</span>
+                <span class="rest-status-badge" id="restStatusCode">200 OK</span>
+                <span class="rest-time-badge" id="restTimestamp">Just now</span>
+              </div>
+              <pre class="rest-pre" id="restJsonViewer">{ "status": "Ready to inspect API calls" }</pre>
+            </div>
+          </div>
+        </div>
       </section>
-    </main>
+    </div>
+
+    <!-- Modal: New File Creator with Templates -->
+    <div class="modal-overlay" id="newFileModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Create New File</h3>
+          <button class="modal-close-btn" id="closeNewModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="newFileNameInput">File Name & Extension</label>
+            <input
+              type="text"
+              id="newFileNameInput"
+              class="form-control"
+              placeholder="e.g. script.py, notes.md, data.json"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Or Start with a Template</label>
+            <div class="template-chips">
+              <button class="chip" data-template="python">🐍 Python (.py)</button>
+              <button class="chip" data-template="js">📜 JavaScript (.js)</button>
+              <button class="chip" data-template="json">⚙️ JSON (.json)</button>
+              <button class="chip" data-template="markdown">📝 Markdown (.md)</button>
+              <button class="chip" data-template="txt">📄 Plain Text (.txt)</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="newFileContentInput">Initial Content (Optional)</label>
+            <textarea
+              id="newFileContentInput"
+              class="form-control code-area"
+              rows="4"
+              placeholder="Write initial content here..."
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancelNewModalBtn">Cancel</button>
+          <button class="btn btn-primary" id="confirmCreateFileBtn">Create File</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Rename File -->
+    <div class="modal-overlay" id="renameModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Rename File</h3>
+          <button class="modal-close-btn" id="closeRenameModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="renameOldInput">Current Name</label>
+            <input type="text" id="renameOldInput" class="form-control" disabled />
+          </div>
+          <div class="form-group">
+            <label for="renameNewInput">New Name</label>
+            <input type="text" id="renameNewInput" class="form-control" placeholder="new_file_name.txt" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancelRenameModalBtn">Cancel</button>
+          <button class="btn btn-primary" id="confirmRenameBtn">Save Rename</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Delete Confirmation -->
+    <div class="modal-overlay" id="deleteModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="danger-title">Confirm Deletion</h3>
+          <button class="modal-close-btn" id="closeDeleteModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to permanently delete <strong id="deleteTargetFileName">this file</strong>?</p>
+          <p class="text-muted small">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancelDeleteModalBtn">Cancel</button>
+          <button class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: System Diagnostics (College Project Showcase) -->
+    <div class="modal-overlay" id="systemModal">
+      <div class="modal-card system-modal">
+        <div class="modal-header">
+          <h3>System & Runtime Diagnostics</h3>
+          <button class="modal-close-btn" id="closeSystemModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="diag-grid">
+            <div class="diag-item">
+              <span class="diag-label">Node Runtime</span>
+              <span class="diag-val" id="diagNode">-</span>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">OS Platform</span>
+              <span class="diag-val" id="diagPlatform">-</span>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">CPU Architecture</span>
+              <span class="diag-val" id="diagArch">-</span>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Process RSS Memory</span>
+              <span class="diag-val" id="diagRss">-</span>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Heap Memory Used</span>
+              <span class="diag-val" id="diagHeap">-</span>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Storage Directory</span>
+              <span class="diag-val small-path" id="diagStorage">-</span>
+            </div>
+          </div>
+          <div class="architecture-box">
+            <h4>Architecture Highlights for College Evaluation:</h4>
+            <ul>
+              <li><strong>RESTful API Standards:</strong> GET, POST, PUT, PATCH, DELETE methods.</li>
+              <li><strong>Security:</strong> Path traversal sanitization preventing unauthorized file access.</li>
+              <li><strong>Asynchronous I/O:</strong> Non-blocking <code>fs.promises</code> file streaming.</li>
+              <li><strong>Responsive Frontend:</strong> Vanilla JS + CSS Grid/Flexbox architecture.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="closeSystemModalBottomBtn">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <script src="script.js"></script>
   </body>
 </html>
